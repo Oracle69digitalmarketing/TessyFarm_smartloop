@@ -3,9 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import FarmsPage from './pages/FarmsPage';
 import FarmDetailPage from './pages/FarmDetailPage';
-import FieldDetailPage from './pages/FieldDetailPage'; // <--- IMPORT NEW PAGE
-// Import other pages here later
-// import CropCycleDetailPage from './pages/CropCycleDetailPage';
+import FieldDetailPage from './pages/FieldDetailPage';
+import CropCycleDetailPage from './pages/CropCycleDetailPage'; // <--- IMPORT NEW PAGE
 import './App.css';
 
 function App() {
@@ -16,7 +15,7 @@ function App() {
           <ul>
             <li><Link to="/">Home</Link></li>
             <li><Link to="/farms">Farms</Link></li>
-            {/* Add other global links here */}
+            {/* Fields link might not be top-level as it's usually context-dependent */}
           </ul>
         </nav>
         <main className="app-content">
@@ -24,9 +23,8 @@ function App() {
             <Route path="/" element={<FarmsPage />} />
             <Route path="/farms" element={<FarmsPage />} /> 
             <Route path="/farms/:farmId" element={<FarmDetailPage />} />
-            <Route path="/fields/:fieldId" element={<FieldDetailPage />} /> {/* <--- ADDED ROUTE */}
-            {/* Example for a future crop cycle detail page */}
-            {/* <Route path="/crop-cycles/:cycleId" element={<CropCycleDetailPage />} /> */}
+            <Route path="/fields/:fieldId" element={<FieldDetailPage />} />
+            <Route path="/crop-cycles/:cycleId" element={<CropCycleDetailPage />} /> {/* <--- ADDED ROUTE */}
           </Routes>
         </main>
       </div>
