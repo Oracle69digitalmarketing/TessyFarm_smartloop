@@ -1,0 +1,10 @@
+# tessyfarm_smartloop/iot_listener/requirements.txt
+paho-mqtt>=1.6.0,<2.0.0 # MQTT client library
+
+# For PostgreSQL connection and ORM (same as backend)
+sqlalchemy>=2.0.0,<2.1.0
+psycopg2-binary>=2.9.0,<2.10.0
+
+# For data validation and settings (can use Pydantic)
+pydantic[email]>=2.5.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0 # To load .env for settings
