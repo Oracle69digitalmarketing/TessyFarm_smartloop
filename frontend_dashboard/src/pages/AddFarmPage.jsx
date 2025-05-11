@@ -20,6 +20,18 @@ function AddFarmPage() {
   };
 
   return (
+    // At the top of frontend_dashboard/src/pages/FarmsPage.jsx, inside the return:
+// import { Link } from 'react-router-dom'; // Ensure Link is imported if not already
+// ...
+// return (
+//   <div className="farms-page">
+//     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+//       <h1>Available Farms</h1>
+//       <Link to="/farms/new" className="button-add-new">Add New Farm</Link>
+//     </div>
+// ...
+// );
+
     <div className="page-container">
       <h2>Create New Farm</h2>
       <FarmForm 
