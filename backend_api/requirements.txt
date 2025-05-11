@@ -1,12 +1,15 @@
 # tessyfarm_smartloop/backend_api/requirements.txt
 fastapi>=0.110.0,<0.112.0
 uvicorn[standard]>=0.29.0,<0.31.0
-pydantic[email]>=2.5.0,<3.0.0 # For settings management and data validation
-python-dotenv>=1.0.0,<2.0.0 # To load .env file for settings
+pydantic[email]>=2.5.0,<3.0.0
+python-dotenv>=1.0.0,<2.0.0
 
-# For PostgreSQL (will be used in the next step)
+# For PostgreSQL
 sqlalchemy>=2.0.0,<2.1.0
-psycopg2-binary>=2.9.0,<2.10.0 # For connecting to PostgreSQL
-alembic>=1.12.0,<1.14.0 # For database migrations
+psycopg2-binary>=2.9.0,<2.10.0
+alembic>=1.12.0,<1.14.0
 
-# Add other dependencies as needed
+# For ML script if run in this environment
+pandas>=1.3.0,<2.3.0  # Ensure version compatibility
+scikit-learn>=1.0.0,<1.5.0
+joblib>=1.0.0,<1.5.0
