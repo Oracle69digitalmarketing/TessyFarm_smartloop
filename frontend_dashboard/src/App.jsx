@@ -2,9 +2,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import FarmsPage from './pages/FarmsPage';
-import FarmDetailPage from './pages/FarmDetailPage'; // <--- IMPORT NEW PAGE
+import FarmDetailPage from './pages/FarmDetailPage';
+import FieldDetailPage from './pages/FieldDetailPage'; // <--- IMPORT NEW PAGE
 // Import other pages here later
-// import FieldDetailPage from './pages/FieldDetailPage'; 
+// import CropCycleDetailPage from './pages/CropCycleDetailPage';
 import './App.css';
 
 function App() {
@@ -20,12 +21,12 @@ function App() {
         </nav>
         <main className="app-content">
           <Routes>
-            <Route path="/" element={<FarmsPage />} /> {/* Default to FarmsPage */}
+            <Route path="/" element={<FarmsPage />} />
             <Route path="/farms" element={<FarmsPage />} /> 
-            <Route path="/farms/:farmId" element={<FarmDetailPage />} /> {/* <--- ADDED ROUTE */}
-            {/* Example for a future field detail page */}
-            {/* <Route path="/fields/:fieldId" element={<FieldDetailPage />} /> */}
-            {/* Add more routes here */}
+            <Route path="/farms/:farmId" element={<FarmDetailPage />} />
+            <Route path="/fields/:fieldId" element={<FieldDetailPage />} /> {/* <--- ADDED ROUTE */}
+            {/* Example for a future crop cycle detail page */}
+            {/* <Route path="/crop-cycles/:cycleId" element={<CropCycleDetailPage />} /> */}
           </Routes>
         </main>
       </div>
