@@ -36,3 +36,13 @@ Project Directory Structure
 ├── .env.example            # Example environment variables
 ├── .gitignore
 └── README.md
+
+mkdir -p tessyfarm_smartloop/backend_api/app/core
+mkdir -p tessyfarm_smartloop/backend_api/app/apis/version1/endpoints
+mkdir -p tessyfarm_smartloop/backend_api/tests
+touch tessyfarm_smartloop/.gitignore
+touch tessyfarm_smartloop/README.md
+touch tessyfarm_smartloop/backend_api/app/__init__.py
+touch tessyfarm_smartloop/backend_api/app/apis/__init__.py
+touch tessyfarm_smartloop/backend_api/app/apis/version1/__init__.py
+touch tessyfarm_smartloop/backend_api/app/apis/version1/endpoints/__init__.py
