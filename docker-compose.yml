@@ -47,3 +47,56 @@ networks:
   default:
     driver: bridge
 
+# tessyfarm_smartloop/docker-compose.yml
+version: '3.8'
+
+services:
+  # ... (backend_api, db, mqtt_broker, iot_listener service definitions remain the same) ...
+
+  backend_api:
+    build: ./backend_api
+    container_name: tessyfarm_backend_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend_api:/app
+      - ./ml_models:/app/ml_models # This mount is important for the script path
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy
+      mqtt_broker:
+        condition: service_started # Changed for clarity, though not strictly for cron
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    # ...
+  mqtt_broker:
+    # ...
+  iot_listener:
+    # ...
+
+  # NEW: Cron Scheduler Service
+  cron_scheduler:
+    build: ./cron_scheduler # Path to the directory containing its Dockerfile and crontab
+    container_name: tessyfarm_cron_scheduler
+    restart: unless-stopped
+    volumes:
+      # Mount the Docker socket to allow this container to execute 'docker exec' commands
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      # It depends on backend_api being up to be able to exec into it,
+      # though cron will just try at the scheduled time regardless.
+      # This helps with startup order if you restart everything.
+      - backend_api
+    # No env_file needed here as the script inside backend_api uses its own environment.
+    # The TZ environment variable is set in its Dockerfile for the cron daemon itself.
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    driver: bridge
+    
