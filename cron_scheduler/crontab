@@ -1,0 +1,11 @@
+# tessyfarm_smartloop/cron_scheduler/crontab
+
+# Run the batch yield predictor script daily at 2:00 AM (server time)
+# The output (stdout & stderr) will be sent to the cron container's log (viewable with 'docker logs')
+0 2 * * * docker exec tessyfarm_backend_api python /app/ml_models/scripts/batch_yield_predictor.py
+
+# For testing purposes, you might want to run it more frequently, e.g., every 5 minutes:
+# */5 * * * * docker exec tessyfarm_backend_api python /app/ml_models/scripts/batch_yield_predictor.py
+
+# Make sure this file ends with a newline character for cron to parse it correctly.
+
