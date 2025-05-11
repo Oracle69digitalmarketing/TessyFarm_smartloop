@@ -1,18 +1,18 @@
 # tessyfarm_smartloop/docker-compose.yml
-version: '3.8'
-
 services:
-  # Backend API (FastAPI) - (existing service definition)
   backend_api:
     build: ./backend_api
-    # ... (rest of backend_api config) ...
+    container_name: tessyfarm_backend_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend_api:/app # For live reload of backend code
+      - ./ml_models:/app/ml_models # Mount ml_models directory
     env_file:
       - ./.env
     depends_on:
-      db:
-        condition: service_healthy
-      mqtt_broker: # Added explicit dependency
-        condition: service_started
+      # ...
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   # Database (PostgreSQL) - (existing service definition)
   db:
