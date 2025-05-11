@@ -37,3 +37,7 @@ function App() {
 }
 
 export default App;
+
+// In frontend_dashboard/src/services/api.js
+export const getFarmById = (farmId) => apiClient.get(`/farms/${farmId}`);
+export const updateFarm = (farmId, farmData) => apiClient.put(`/farms/${farmId}`, farmData);
