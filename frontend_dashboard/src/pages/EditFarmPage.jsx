@@ -13,6 +13,11 @@ function EditFarmPage() {
 
   useEffect(() => {
     const fetchFarm = async () => {
+      if (!farmId) {
+        setError("Farm ID is missing.");
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         const response = await getFarmById(farmId);
@@ -35,23 +40,26 @@ function EditFarmPage() {
       navigate(`/farms/${farmId}`); // Navigate back to the farm's detail page
     } catch (error) {
       console.error('Failed to update farm:', error);
+      // The FarmForm component will display specific API errors if passed up
       throw error; // Re-throw to let FarmForm handle displaying the error
     }
   };
 
   if (loading) return <p>Loading farm data for editing...</p>;
   if (error) return <p style={{color: 'red'}}>Error: {error}</p>;
-  if (!initialData) return <p>Farm data not found.</p>;
+  if (!initialData && !loading) return <p>Farm data not found or could not be loaded.</p>; // Handles case where initialData remains null after loading
 
   return (
-    <div className="page-container">
-      <h2>Edit Farm: {initialData.name}</h2>
-      <FarmForm 
-        onSubmit={handleSubmit} 
-        initialData={initialData}
-        submitButtonText="Update Farm"
-        isEditMode={true}
-      />
+    <div className="page-container"> {/* You can add a common CSS class for page layout */}
+      <h2>Edit Farm: {initialData?.name || 'Farm'}</h2> {/* Show name once loaded */}
+      {initialData && ( // Only render form if initialData is available
+        <FarmForm 
+          onSubmit={handleSubmit} 
+          initialData={initialData}
+          submitButtonText="Update Farm"
+          isEditMode={true}
+        />
+      )}
     </div>
   );
 }
