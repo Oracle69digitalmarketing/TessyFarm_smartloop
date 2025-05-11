@@ -2,81 +2,26 @@
 version: '3.8'
 
 services:
-  backend_api:
-    build: ./backend_api
-    container_name: tessyfarm_backend_api
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend_api:/app         # For live reload of backend code
-      - ./ml_models:/app/ml_models # Mount ml_models directory for script access and model saving
-    env_file:
-      - ./.env
-    depends_on:
-      db:
-        condition: service_healthy # Ensures DB is ready before backend starts
-      mqtt_broker:
-        condition: service_started # Ensures MQTT broker is started
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+  # ... backend_api, db, mqtt_broker, iot_listener, cron_scheduler ...
 
-  db:
-    image: postgres:15-alpine
-    container_name: tessyfarm_db
+  frontend_dashboard:
+    build:
+      context: ./frontend_dashboard
+      dockerfile: Dockerfile.dev # Use the development Dockerfile
+    container_name: tessyfarm_frontend
     ports:
-      - "5432:5432"
+      - "5173:5173" # Vite's default port
     volumes:
-      - postgres_data:/var/lib/postgresql/data/ # Persist data
-    env_file:
-      - ./.env
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  mqtt_broker:
-    image: eclipse-mosquitto:2
-    container_name: tessyfarm_mqtt
-    ports:
-      - "1883:1883"
-      - "9001:9001" # For MQTT over WebSockets (optional)
-    volumes:
-      - ./mosquitto/config:/mosquitto/config # Optional: for custom mosquitto.conf
-      # - ./mosquitto/data:/mosquitto/data   # Optional: for persistent data
-      # - ./mosquitto/log:/mosquitto/log     # Optional: for logs
-    # command: "mosquitto -c /mosquitto/config/mosquitto.conf" # If using custom config
-
-  iot_listener:
-    build: ./iot_listener
-    container_name: tessyfarm_iot_listener
-    env_file:
-      - ./.env
-    depends_on:
-      db:
-        condition: service_healthy
-      mqtt_broker:
-        condition: service_started
+      - ./frontend_dashboard:/app          # Mount app code for hot reloading
+      - /app/node_modules                 # Anonymous volume to prevent host node_modules overwriting container's
     restart: unless-stopped
-
-  # NEW: Cron Scheduler Service
-  cron_scheduler:
-    build: ./cron_scheduler # Path to the directory containing its Dockerfile and crontab
-    container_name: tessyfarm_cron_scheduler
-    restart: unless-stopped
-    volumes:
-      # Mount the Docker socket to allow this container to execute 'docker exec' commands
-      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      # Ensures backend_api is likely up and running before cron attempts to exec into it.
-      # Cron will run at its scheduled time regardless, but this helps with initial startup order.
-      - backend_api
-    # No env_file needed here directly as the script it execs inside backend_api
-    # will use backend_api's environment variables.
-    # The TZ environment variable for the cron daemon itself is set in its Dockerfile.
+      - backend_api # Frontend usually depends on backend being available
+    environment:
+      # Vite uses this env var to point to the backend if proxied or for direct calls
+      # If your api.js uses an absolute URL like http://localhost:8000, this isn't strictly needed by Vite itself
+      # but can be useful for configuring the app.
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1 
+      # Ensure your React app reads this. Vite automatically exposes VITE_ vars to import.meta.env
 
-volumes:
-  postgres_data: # Defines the named volume for PostgreSQL data persistence
-
-networks:
-  default: # All services will join this bridge network by default
-    driver: bridge
+# ... volumes, networks ...
