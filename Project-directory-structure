@@ -1,0 +1,38 @@
+Project Directory Structure
+   tessyfarm_smartloop/
+├── backend_api/            # FastAPI application
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py         # FastAPI app instantiation
+│   │   ├── core/           # Config, DB connection
+│   │   │   ├── config.py
+│   │   │   └── db.py
+│   │   ├── apis/           # API routers (endpoints)
+│   │   │   ├── __init__.py
+│   │   │   ├── version1/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── endpoints/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── farm_data.py  # For sensor data, farm config
+│   │   │   │   │   └── automation.py
+│   │   │   │   └── schemas.py      # Pydantic models for request/response
+│   │   ├── models/         # SQLAlchemy models (if using an ORM for PostgreSQL)
+│   │   │   └── farm.py
+│   │   └── services/       # Business logic (optional for simple CRUD, essential later)
+│   ├── tests/
+│   ├── Dockerfile
+│   └── requirements.txt
+├── frontend_dashboard/     # React application
+│   ├── public/
+│   ├── src/
+│   ├── Dockerfile          # For building/serving React app (e.g., with Nginx)
+│   └── package.json
+├── iot_listener/           # Python MQTT Listener service
+│   ├── listener.py
+│   ├── requirements.txt
+│   └── Dockerfile
+├── ml_models/              # (For later phases)
+├── docker-compose.yml      # Main Docker Compose file for all services
+├── .env.example            # Example environment variables
+├── .gitignore
+└── README.md
