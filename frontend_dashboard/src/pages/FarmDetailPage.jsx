@@ -57,6 +57,18 @@ function FarmDetailPage() {
             Edit Farm
           </Link>
         </div>
+        // In frontend_dashboard/src/pages/FieldDetailPage.jsx
+// ... (inside the return, likely in the header)
+// <header className="field-header">
+//   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+//     <div>
+//       <h1>Field: {field.name}</h1>
+//       {/* ... other field details ... */}
+//     </div>
+//     <Link to={`/fields/${field.id}/edit`} className="button-edit">Edit Field</Link>
+//   </div>
+// </header>
+// ...
       </header>
 
       <section className="fields-section">
