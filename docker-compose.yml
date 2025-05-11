@@ -1,81 +1,62 @@
 # tessyfarm_smartloop/docker-compose.yml
-services:
-  backend_api:
-    build: ./backend_api
-    container_name: tessyfarm_backend_api
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./backend_api:/app # For live reload of backend code
-      - ./ml_models:/app/ml_models # Mount ml_models directory
-    env_file:
-      - ./.env
-    depends_on:
-      # ...
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-
-  # Database (PostgreSQL) - (existing service definition)
-  db:
-    image: postgres:15-alpine
-    # ... (rest of db config) ...
-    env_file:
-      - ./.env
-
-  # MQTT Broker (Mosquitto) - (existing service definition)
-  mqtt_broker:
-    image: eclipse-mosquitto:2
-    # ... (rest of mqtt_broker config) ...
-
-  # NEW: IoT Listener Service
-  iot_listener:
-    build: ./iot_listener
-    container_name: tessyfarm_iot_listener
-    env_file:
-      - ./.env # To get DB and MQTT connection details
-    depends_on:
-      db: # Depends on the database being healthy
-        condition: service_healthy
-      mqtt_broker: # Depends on the MQTT broker being started
-        condition: service_started
-    restart: unless-stopped # Or always, depending on your preference
-
-volumes:
-  postgres_data:
-
-networks:
-  default:
-    driver: bridge
-
-# tessyfarm_smartloop/docker-compose.yml
 version: '3.8'
 
 services:
-  # ... (backend_api, db, mqtt_broker, iot_listener service definitions remain the same) ...
-
   backend_api:
     build: ./backend_api
     container_name: tessyfarm_backend_api
     ports:
       - "8000:8000"
     volumes:
-      - ./backend_api:/app
-      - ./ml_models:/app/ml_models # This mount is important for the script path
+      - ./backend_api:/app         # For live reload of backend code
+      - ./ml_models:/app/ml_models # Mount ml_models directory for script access and model saving
+    env_file:
+      - ./.env
+    depends_on:
+      db:
+        condition: service_healthy # Ensures DB is ready before backend starts
+      mqtt_broker:
+        condition: service_started # Ensures MQTT broker is started
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  db:
+    image: postgres:15-alpine
+    container_name: tessyfarm_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/ # Persist data
+    env_file:
+      - ./.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mqtt_broker:
+    image: eclipse-mosquitto:2
+    container_name: tessyfarm_mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001" # For MQTT over WebSockets (optional)
+    volumes:
+      - ./mosquitto/config:/mosquitto/config # Optional: for custom mosquitto.conf
+      # - ./mosquitto/data:/mosquitto/data   # Optional: for persistent data
+      # - ./mosquitto/log:/mosquitto/log     # Optional: for logs
+    # command: "mosquitto -c /mosquitto/config/mosquitto.conf" # If using custom config
+
+  iot_listener:
+    build: ./iot_listener
+    container_name: tessyfarm_iot_listener
     env_file:
       - ./.env
     depends_on:
       db:
         condition: service_healthy
       mqtt_broker:
-        condition: service_started # Changed for clarity, though not strictly for cron
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-  db:
-    # ...
-  mqtt_broker:
-    # ...
-  iot_listener:
-    # ...
+        condition: service_started
+    restart: unless-stopped
 
   # NEW: Cron Scheduler Service
   cron_scheduler:
@@ -86,17 +67,16 @@ services:
       # Mount the Docker socket to allow this container to execute 'docker exec' commands
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      # It depends on backend_api being up to be able to exec into it,
-      # though cron will just try at the scheduled time regardless.
-      # This helps with startup order if you restart everything.
+      # Ensures backend_api is likely up and running before cron attempts to exec into it.
+      # Cron will run at its scheduled time regardless, but this helps with initial startup order.
       - backend_api
-    # No env_file needed here as the script inside backend_api uses its own environment.
-    # The TZ environment variable is set in its Dockerfile for the cron daemon itself.
+    # No env_file needed here directly as the script it execs inside backend_api
+    # will use backend_api's environment variables.
+    # The TZ environment variable for the cron daemon itself is set in its Dockerfile.
 
 volumes:
-  postgres_data:
+  postgres_data: # Defines the named volume for PostgreSQL data persistence
 
 networks:
-  default:
+  default: # All services will join this bridge network by default
     driver: bridge
-    
