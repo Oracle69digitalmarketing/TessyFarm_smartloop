@@ -1,0 +1,16 @@
+/* Add to frontend_dashboard/src/pages/FarmDetailPage.css or a global styles file */
+.button-edit {
+  background-color: #ffc107; /* Yellow for edit */
+  color: #212529;
+  padding: 8px 15px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  display: inline-block;
+  border: 1px solid #dda600; /* Optional border */
+  height: fit-content; /* To align better if text next to it wraps */
+  margin-left: 15px; /* Space from farm details */
+}
+.button-edit:hover {
+  background-color: #e0a800;
+}
