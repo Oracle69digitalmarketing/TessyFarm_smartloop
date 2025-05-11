@@ -76,6 +76,18 @@ function FarmDetailPage() {
         ) : (
           <p>No fields found for this farm.</p>
         )}
+        // In frontend_dashboard/src/pages/FarmDetailPage.jsx
+// ... (inside the return, in the fields-section)
+// <section className="fields-section">
+//   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+//      <h2>Fields in this Farm</h2>
+//      <Link to={`/farms/${farm.id}/fields/new`} state={{ farmId: farm.id }} className="button-add-new"> 
+//         Add New Field
+//      </Link>
+//      {/* Or just <Link to={`/fields/new`} state={{ farmId: farm.id }} ... if using the general add field page and passing state */}
+//   </div>
+// ...
+  
       </section>
     </div>
   );
