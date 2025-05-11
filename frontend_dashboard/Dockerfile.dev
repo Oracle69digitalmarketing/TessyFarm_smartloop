@@ -1,0 +1,25 @@
+# frontend_dashboard/Dockerfile.dev
+FROM node:18-alpine As development
+
+WORKDIR /app
+
+# Copy package.json and lock file
+COPY package.json yarn.lock ./
+# Or if using npm:
+# COPY package.json package-lock.json ./
+
+# Install dependencies
+RUN yarn install --frozen-lockfile
+# Or if using npm:
+# RUN npm ci
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose the Vite default port
+EXPOSE 5173
+
+# Start the Vite development server
+CMD ["yarn", "dev", "--host"]
+# Or if using npm:
+# CMD ["npm", "run", "dev", "--", "--host"]
