@@ -1,0 +1,26 @@
+# tessyfarm_smartloop/.env
+
+# Backend API Configuration
+PROJECT_NAME="Tessyfarm SmartLoop"
+API_V1_STR="/api/v1"
+# For Development (will be overridden by Docker Compose command if --reload is used)
+# APP_MODULE="app.main:app"
+# HOST="0.0.0.0"
+# PORT=8000
+# RELOAD=true
+
+# PostgreSQL Configuration
+POSTGRES_SERVER=db # This is the service name in docker-compose.yml
+POSTGRES_USER=tessyfarm_user
+POSTGRES_PASSWORD=supersecretpassword
+POSTGRES_DB=tessyfarm_db
+POSTGRES_PORT=5432
+#DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_SERVER}:${POSTGRES_PORT}/${POSTGRES_DB}
+
+# Mosquitto Configuration (if needed for backend connection, though listener will connect)
+MQTT_BROKER_HOST=mqtt_broker
+MQTT_BROKER_PORT=1883
+MQTT_CLIENT_ID_BACKEND="tessyfarm_backend" # Example client ID
+
+# Add other environment specific settings here
+PYTHON_VERSION=3.11
