@@ -1,11 +1,12 @@
 // frontend_dashboard/src/pages/FarmDetailPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom'; // useParams to get farmId from URL
+import { useParams, Link, useNavigate } from 'react-router-dom'; // <--- Ensure Link is imported
 import { getFarmById } from '../services/api';
-import './FarmDetailPage.css'; // Create this for styling
+import './FarmDetailPage.css';
 
 function FarmDetailPage() {
-  const { farmId } = useParams(); // Get farmId from the URL parameter
+  const { farmId } = useParams();
+  const navigate = useNavigate(); // For the back button
   const [farm, setFarm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +16,7 @@ function FarmDetailPage() {
       try {
         setLoading(true);
         const response = await getFarmById(farmId);
-        setFarm(response.data); // The backend returns FarmResponseWithFields
+        setFarm(response.data);
         setError(null);
       } catch (err) {
         console.error(`Error fetching farm details for ID ${farmId}:`, err);
@@ -32,7 +33,7 @@ function FarmDetailPage() {
     if (farmId) {
       fetchFarmDetails();
     }
-  }, [farmId]); // Re-fetch if farmId changes
+  }, [farmId]);
 
   if (loading) return <p>Loading farm details...</p>;
   if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
@@ -40,13 +41,22 @@ function FarmDetailPage() {
 
   return (
     <div className="farm-detail-page">
-      <Link to="/farms" className="back-link">&larr; Back to Farms</Link>
+      <button onClick={() => navigate(-1)} className="back-button">&larr; Back</button> {/* Using button for navigate(-1) */}
+      
       <header className="farm-header">
-        <h1>{farm.name}</h1>
-        <p><strong>Location:</strong> {farm.location_text || 'N/A'}</p>
-        <p><strong>Total Area:</strong> {farm.total_area_hectares ? `${farm.total_area_hectares} ha` : 'N/A'}</p>
-        <p><strong>Farm ID:</strong> {farm.id}</p>
-        <p><strong>Created:</strong> {new Date(farm.created_at).toLocaleDateString()}</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <h1>{farm.name}</h1>
+            <p><strong>Location:</strong> {farm.location_text || 'N/A'}</p>
+            <p><strong>Total Area:</strong> {farm.total_area_hectares ? `${farm.total_area_hectares} ha` : 'N/A'}</p>
+            <p><strong>Farm ID:</strong> {farm.id}</p>
+            <p><strong>Created:</strong> {new Date(farm.created_at).toLocaleDateString()}</p>
+          </div>
+          {/* --- ADDED EDIT LINK/BUTTON --- */}
+          <Link to={`/farms/${farm.id}/edit`} className="button-edit"> 
+            Edit Farm
+          </Link>
+        </div>
       </header>
 
       <section className="fields-section">
@@ -55,7 +65,6 @@ function FarmDetailPage() {
           <ul className="fields-list">
             {farm.fields.map((field) => (
               <li key={field.id} className="field-item">
-                {/* Link to a future FieldDetailPage */}
                 <Link to={`/fields/${field.id}`}> 
                   <h3>{field.name}</h3>
                 </Link>
@@ -73,21 +82,3 @@ function FarmDetailPage() {
 }
 
 export default FarmDetailPage;
-
-// In frontend_dashboard/src/pages/FarmDetailPage.jsx
-// import { Link } from 'react-router-dom'; // Already there
-// ...
-// return (
-//   <div className="farm-detail-page">
-//     <Link to="/farms" className="back-link">&larr; Back to Farms</Link>
-//     <header className="farm-header">
-//       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-//         <div>
-//           <h1>{farm.name}</h1>
-//           {/* ... other farm details ... */}
-//         </div>
-//         <Link to={`/farms/${farm.id}/edit`} className="button-edit">Edit Farm</Link>
-//       </div>
-//     </header>
-// ...
-// );
