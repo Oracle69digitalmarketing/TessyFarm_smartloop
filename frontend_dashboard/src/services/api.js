@@ -27,3 +27,28 @@ export const updateField = (fieldId, fieldData) => apiClient.put(`/fields/${fiel
 // ... (placeholder for getSensorDataForField) ...
 
 export default apiClient;
+
+// frontend_dashboard/src/services/api.js
+// ... (apiClient and other existing functions for Farm, Field, Prediction) ...
+
+// --- Field Endpoints ---
+// ... (getFields, getFieldById, createField, updateField) ...
+
+// --- Crop Cycle Endpoints ---
+export const getCropCycles = (fieldId) => {
+  let url = '/crop-cycles/';
+  if (fieldId) {
+    url += `?field_id=${fieldId}`;
+  }
+  return apiClient.get(url);
+};
+export const getCropCycleById = (cycleId) => apiClient.get(`/crop-cycles/${cycleId}`);
+export const createCropCycle = (cycleData) => apiClient.post('/crop-cycles/', cycleData); // <--- NEW
+export const updateCropCycle = (cycleId, cycleData) => apiClient.put(`/crop-cycles/${cycleId}`, cycleData); // <--- NEW
+// export const deleteCropCycle = (cycleId) => apiClient.delete(`/crop-cycles/${cycleId}`); // <--- For future implementation
+
+// --- Prediction Endpoints ---
+// ... (getCurrentYieldPredictionForField, getYieldPredictionForCycle) ...
+
+// ... (rest of the file)
+export default apiClient;
