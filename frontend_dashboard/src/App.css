@@ -1,0 +1,42 @@
+/* frontend_dashboard/src/App.css */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #eef2f5;
+  color: #333;
+}
+
+.app-nav {
+  background-color: #2c3e50;
+  padding: 10px 20px;
+  color: white;
+}
+
+.app-nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.app-nav li {
+  margin-right: 20px;
+}
+
+.app-nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.app-nav a:hover {
+  text-decoration: underline;
+}
+
+.app-content {
+  padding: 20px;
+}
