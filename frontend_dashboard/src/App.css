@@ -40,3 +40,26 @@ body {
 .app-content {
   padding: 20px;
 }
+
+/* Example for .button-add-new or .button-edit */
+.button-add-new, .button-edit {
+  background-color: #28a745; /* Green for add */
+  color: white;
+  padding: 8px 15px;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  display: inline-block;
+  border: none;
+}
+.button-add-new:hover, .button-edit:hover {
+  background-color: #218838;
+}
+.button-edit {
+  background-color: #ffc107; /* Yellow for edit */
+  color: #212529;
+}
+.button-edit:hover {
+  background-color: #e0a800;
+}
+
