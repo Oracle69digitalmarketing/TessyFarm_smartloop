@@ -23,4 +23,13 @@ MQTT_BROKER_PORT=1883
 MQTT_CLIENT_ID_BACKEND="tessyfarm_backend" # Example client ID
 
 # Add other environment specific settings here
+# tessyfarm_smartloop/.env
+# ... (existing variables)
+
+# MQTT Configuration (used by listener and potentially backend)
+MQTT_BROKER_HOST=mqtt_broker # Service name from docker-compose
+MQTT_BROKER_PORT=1883
+MQTT_TOPIC_PREFIX="tessyfarm/data/" # Make sure this matches listener.py
+# MQTT_CLIENT_ID_LISTENER="tessyfarm_iot_listener" # Can be set in listener.py or here
+
 PYTHON_VERSION=3.11
