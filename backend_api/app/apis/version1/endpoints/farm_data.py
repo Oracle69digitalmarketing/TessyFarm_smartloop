@@ -1,77 +1,75 @@
 # tessyfarm_smartloop/backend_api/app/apis/version1/endpoints/farm_data.py
-from fastapi import APIRouter, HTTPException, Body
-from typing import List, Dict
-from datetime import datetime
+from fastapi import APIRouter, HTTPException, Body, Depends
+from sqlalchemy.orm import Session
+from typing import List, Dict # Keep Dict if you still intend to group by device_id in Python
 
-from ..schemas import SensorDataCreate, SensorDataResponse # Use .. to go up one level
+from ..schemas import SensorDataCreate, SensorDataResponse
+from ....core.db import get_db # Navigate up to core.db
+from ....models.farm import SensorReading # Navigate up to models.farm
 
 router = APIRouter()
 
-# In-memory store for now (will be replaced by database interaction)
-# This is NOT suitable for production or multiple workers.
-DUMMY_SENSOR_DATA_STORE: Dict[str, List[Dict]] = {}
-DUMMY_DB_ID_COUNTER = 1
+# Remove the DUMMY_SENSOR_DATA_STORE and DUMMY_DB_ID_COUNTER
 
 @router.post("/sensor-data/", response_model=SensorDataResponse, status_code=201)
-async def receive_sensor_data(data: SensorDataCreate = Body(...)):
+async def receive_sensor_data(
+    data: SensorDataCreate = Body(...), 
+    db: Session = Depends(get_db)
+):
     """
-    Receive sensor data from IoT devices or listeners.
-    (Currently stores in-memory - for demo only)
+    Receive sensor data and store it in the database.
     """
-    global DUMMY_DB_ID_COUNTER
     print(f"Received sensor data for device {data.device_id}: {data.model_dump()}")
-
-    if data.device_id not in DUMMY_SENSOR_DATA_STORE:
-        DUMMY_SENSOR_DATA_STORE[data.device_id] = []
-
-    # Simulate database entry
-    db_entry = data.model_dump()
-    db_entry["id"] = DUMMY_DB_ID_COUNTER
-    db_entry["received_at"] = datetime.utcnow()
-    DUMMY_SENSOR_DATA_STORE[data.device_id].append(db_entry)
-    DUMMY_DB_ID_COUNTER +=1
-
-    return SensorDataResponse(**db_entry)
+    
+    db_sensor_reading = SensorReading(
+        device_id=data.device_id,
+        temperature=data.temperature,
+        humidity=data.humidity,
+        soil_moisture=data.soil_moisture,
+        custom_data=data.custom_data,
+        timestamp=data.timestamp
+        # received_at is handled by database default
+    )
+    
+    db.add(db_sensor_reading)
+    db.commit()
+    db.refresh(db_sensor_reading)
+    
+    return db_sensor_reading # FastAPI will automatically convert this to match SensorDataResponse due to from_attributes
 
 
 @router.get("/sensor-data/{device_id}", response_model=List[SensorDataResponse])
-async def get_sensor_data_for_device(device_id: str):
+async def get_sensor_data_for_device(
+    device_id: str, 
+    db: Session = Depends(get_db)
+):
     """
-    Retrieve all sensor data for a specific device.
-    (Currently retrieves from in-memory store - for demo only)
+    Retrieve all sensor data for a specific device from the database.
     """
-    if device_id not in DUMMY_SENSOR_DATA_STORE:
-        raise HTTPException(status_code=404, detail=f"No data found for device_id: {device_id}")
-    
-    # Convert stored dicts to SensorDataResponse model
-    # This is a bit manual here due to the dummy store. ORM would handle this.
-    response_data = []
-    for entry in DUMMY_SENSOR_DATA_STORE[device_id]:
-        try:
-            response_data.append(SensorDataResponse(**entry))
-        except Exception as e: # Catch if dict doesn't match model perfectly
-            print(f"Error converting entry for {device_id}: {entry}, error: {e}")
-            # Skip faulty entries for now in this dummy setup
-            pass 
-            
-    return response_data
+    readings = db.query(SensorReading).filter(SensorReading.device_id == device_id).order_by(SensorReading.timestamp.desc()).all()
+    if not readings:
+        # It's better to return an empty list than a 404 if the device *could* exist but just has no data.
+        # A 404 might be appropriate if devices themselves were registered entities and this one wasn't found.
+        # For now, an empty list is fine.
+        return []
+    return readings
+
 
 @router.get("/sensor-data/", response_model=Dict[str, List[SensorDataResponse]])
-async def get_all_sensor_data():
+async def get_all_sensor_data(db: Session = Depends(get_db)):
     """
-    Retrieve all sensor data grouped by device ID.
-    (Currently retrieves from in-memory store - for demo only)
+    Retrieve all sensor data from the database, grouped by device_id.
     """
-    # Similar conversion as above for all devices
-    all_data_response = {}
-    for device_id, entries in DUMMY_SENSOR_DATA_STORE.items():
-        device_response_data = []
-        for entry in entries:
-            try:
-                device_response_data.append(SensorDataResponse(**entry))
-            except Exception:
-                pass # Skip faulty entries
-        all_data_response[device_id] = device_response_data
-    return all_data_response
-
-
+    all_readings = db.query(SensorReading).order_by(SensorReading.device_id, SensorReading.timestamp.desc()).all()
+    
+    grouped_data: Dict[str, List[SensorDataResponse]] = {}
+    for reading in all_readings:
+        # Convert SQLAlchemy model instance to Pydantic model instance for consistent response
+        # This happens automatically if response_model is correctly defined and using from_attributes
+        pydantic_reading = SensorDataResponse.model_validate(reading) # Explicit validation for clarity
+        if reading.device_id not in grouped_data:
+            grouped_data[reading.device_id] = []
+        grouped_data[reading.device_id].append(pydantic_reading)
+        
+    return grouped_data
+    
