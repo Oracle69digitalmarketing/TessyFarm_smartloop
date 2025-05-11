@@ -72,4 +72,65 @@ async def get_all_sensor_data(db: Session = Depends(get_db)):
         grouped_data[reading.device_id].append(pydantic_reading)
         
     return grouped_data
+
+# In backend_api/app/apis/version1/endpoints/farm_data.py (or a new predictions.py)
+# ... (other imports)
+from ....models.farm import YieldPrediction # Import the new model
+from ..schemas import YieldPredictionResponse # We'll need to define this schema
+
+# --- Define Pydantic Schemas for Predictions ---
+# In backend_api/app/apis/version1/schemas.py:
+class YieldPredictionResponse(BaseModel):
+    id: int
+    crop_cycle_id: int
+    model_version: str
+    prediction_date: datetime
+    predicted_yield_tonnes: float
+    confidence_score: Optional[float] = None
+    input_features_summary: Optional[Dict[str, Any]] = None
+
+    class Config:
+        from_attributes = True
+
+# --- Add to router in farm_data.py or a new predictions_router.py ---
+@router.get("/yield-predictions/{crop_cycle_id}", response_model=Optional[YieldPredictionResponse], tags=["Predictions"])
+async def get_yield_prediction(crop_cycle_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve the latest yield prediction for a specific crop cycle.
+    """
+    prediction = db.query(YieldPrediction)\
+                   .filter(YieldPrediction.crop_cycle_id == crop_cycle_id)\
+                   .order_by(YieldPrediction.prediction_date.desc())\
+                   .first()
+    if not prediction:
+        # Return 404 if no prediction found for this specific cycle
+        # Or return a specific message/status if you prefer
+        return None # FastAPI will return 200 with null body, or handle with HTTPException(404)
+    return prediction
+
+@router.get("/fields/{field_id}/current-yield-prediction", response_model=Optional[YieldPredictionResponse], tags=["Predictions"])
+async def get_current_yield_prediction_for_field(field_id: int, db: Session = Depends(get_db)):
+    """
+    Retrieve the latest yield prediction for the most current active crop cycle on a field.
+    This requires identifying the 'current' or 'latest' crop cycle for a field.
+    """
+    # Find the latest (e.g., by planting_date or if it has no actual_harvest_date)
+    # active crop cycle for the field
+    current_crop_cycle = db.query(CropCycle)\
+                           .filter(CropCycle.field_id == field_id)\
+                           .filter(CropCycle.actual_harvest_date == None)\
+                           .order_by(CropCycle.planting_date.desc())\
+                           .first()
+
+    if not current_crop_cycle:
+        # No active crop cycle found for this field
+        return None
+
+    prediction = db.query(YieldPrediction)\
+                   .filter(YieldPrediction.crop_cycle_id == current_crop_cycle.id)\
+                   .order_by(YieldPrediction.prediction_date.desc())\
+                   .first()
     
+    return prediction
+
+
