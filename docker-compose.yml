@@ -1,0 +1,56 @@
+# tessyfarm_smartloop/docker-compose.yml
+version: '3.8'
+
+services:
+  # Backend API (FastAPI)
+  backend_api:
+    build: ./backend_api
+    container_name: tessyfarm_backend_api
+    ports:
+      - "8000:8000" # Map host port 8000 to container port 8000
+    volumes:
+      - ./backend_api:/app # Mount current directory ./backend_api to /app in container for live reload
+    env_file:
+      - ./.env # For environment variables
+    depends_on:
+      db: # Ensure database is ready before backend starts (condition is important)
+        condition: service_healthy # Use healthcheck from db service
+      mqtt_broker:
+        condition: service_started # Mosquitto doesn't have a simple healthcheck by default
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload # Run uvicorn server
+
+  # Database (PostgreSQL)
+  db:
+    image: postgres:15-alpine # Use official PostgreSQL 15 image
+    container_name: tessyfarm_db
+    ports:
+      - "5432:5432" # Map host port 5432 to container port 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/ # Persist data
+    env_file:
+      - ./.env # For environment variables (POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB)
+    healthcheck: # Check if PostgreSQL is ready to accept connections
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MQTT Broker (Mosquitto)
+  mqtt_broker:
+    image: eclipse-mosquitto:2 # Use official Mosquitto image
+    container_name: tessyfarm_mqtt
+    ports:
+      - "1883:1883" # Default MQTT port
+      - "9001:9001" # Default MQTT over WebSockets port (optional)
+    volumes:
+      - ./mosquitto/config:/mosquitto/config # For custom configuration (optional for now)
+      # - ./mosquitto/data:/mosquitto/data # For persistence (optional)
+      # - ./mosquitto/log:/mosquitto/log # For logs (optional)
+    # command: "mosquitto -c /mosquitto/config/mosquitto.conf" # If using custom config
+
+volumes:
+  postgres_data: # Define the named volume for PostgreSQL data persistence
+
+networks: # Optional: Define a default network if needed, though Docker Compose creates one by default
+  default:
+    driver: bridge
