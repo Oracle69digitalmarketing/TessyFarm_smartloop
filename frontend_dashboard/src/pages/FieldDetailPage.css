@@ -121,3 +121,15 @@
 .crop-cycle-item p i { /* For notes */
     color: #777;
 }
+
+// In frontend_dashboard/src/pages/FieldDetailPage.jsx
+// ... (inside the return, in the crop-cycles-section)
+// <section className="crop-cycles-section">
+//   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+//     <h2>Crop Cycles in this Field</h2>
+//     <Link to={`/fields/${field.id}/crop-cycles/new`} state={{ fieldId: field.id }} className="button-add-new">
+//       Add New Crop Cycle
+//     </Link>
+//   </div>
+// ...
+
