@@ -105,6 +105,18 @@ function CropCycleDetailPage() {
           <p>No specific yield prediction available for this crop cycle.</p>
         )}
       </section>
+// In frontend_dashboard/src/pages/CropCycleDetailPage.jsx
+// ... (inside the return, likely in the header or as a separate action button)
+// <header className="crop-cycle-header">
+//   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+//     <div>
+//       <h1>Crop Cycle: {cropCycle.crop_type}</h1>
+//       {/* ... other cycle details ... */}
+//     </div>
+//     <Link to={`/crop-cycles/${cropCycle.id}/edit`} className="button-edit">Edit Cycle</Link>
+//   </div>
+// </header>
+// ...
 
       {/* Future sections: Sensor data specific to this cycle's timeframe, interventions log, etc. */}
     </div>
