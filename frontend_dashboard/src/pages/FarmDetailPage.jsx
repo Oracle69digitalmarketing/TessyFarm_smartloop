@@ -73,3 +73,21 @@ function FarmDetailPage() {
 }
 
 export default FarmDetailPage;
+
+// In frontend_dashboard/src/pages/FarmDetailPage.jsx
+// import { Link } from 'react-router-dom'; // Already there
+// ...
+// return (
+//   <div className="farm-detail-page">
+//     <Link to="/farms" className="back-link">&larr; Back to Farms</Link>
+//     <header className="farm-header">
+//       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+//         <div>
+//           <h1>{farm.name}</h1>
+//           {/* ... other farm details ... */}
+//         </div>
+//         <Link to={`/farms/${farm.id}/edit`} className="button-edit">Edit Farm</Link>
+//       </div>
+//     </header>
+// ...
+// );
