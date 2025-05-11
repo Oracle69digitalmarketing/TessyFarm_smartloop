@@ -46,3 +46,10 @@ touch tessyfarm_smartloop/backend_api/app/__init__.py
 touch tessyfarm_smartloop/backend_api/app/apis/__init__.py
 touch tessyfarm_smartloop/backend_api/app/apis/version1/__init__.py
 touch tessyfarm_smartloop/backend_api/app/apis/version1/endpoints/__init__.py
+
+mkdir -p tessyfarm_smartloop/ml_models/notebooks
+mkdir -p tessyfarm_smartloop/ml_models/scripts
+mkdir -p tessyfarm_smartloop/ml_models/saved_models
+touch tessyfarm_smartloop/ml_models/scripts/.gitkeep # To keep the directory in git
+touch tessyfarm_smartloop/ml_models/saved_models/.gitkeep
+
